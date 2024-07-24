@@ -8,27 +8,43 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { X } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { X } from "lucide-react";
+import { Token } from "./token.types";
+import suiIcon from "@/assets/sui.svg";
 
 type SelectTokenProps = {
-  name: string;
-  icon: string;
+  item?: Token;
+  type: "sell" | "buy";
 };
 
 export function SelectTokenDialog(props: SelectTokenProps) {
-  const { name, icon } = props;
+  const { type, item } = props;
+  
+
   return (
     <Dialog>
       <DialogTrigger>
-        <Button
-          variant={"outline"}
-          className="flex cursor-pointer justify-between gap-2 rounded-full border border-[#DCDCE6] bg-[#F5F5FF] pl-1"
-        >
-          <img src={icon}></img>
-          <span className="uppercase">{name}</span>
-          <img src={caretDownIcon}></img>
-        </Button>
+        {item ? (
+          <Button
+            variant={"outline"}
+            className="flex cursor-pointer justify-between gap-2 overflow-hidden rounded-full border border-[#DCDCE6] bg-[#F5F5FF] pl-1"
+          >
+            {<img src={item.logoURI} className="rounded-full"></img>}
+            <span className="uppercase">
+              {item ? item.name : "Select Token"}
+            </span>
+            <img src={caretDownIcon}></img>
+          </Button>
+        ) : (
+          <Button
+            variant={"outline"}
+            className="flex cursor-pointer justify-between gap-2 overflow-hidden rounded-full border border-[#DCDCE6] bg-green-600 px-2 pl-1 text-white hover:bg-green-500 hover:text-white"
+          >
+            <span className="pl-2">Select Token</span>
+            <img src={caretDownIcon}></img>
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="bg-green-4000 max-w-[480px] rounded-2xl bg-[#F5F5FF] px-0 sm:rounded-2xl">
         <div className="grid gap-4 px-4">
@@ -53,34 +69,35 @@ export function SelectTokenDialog(props: SelectTokenProps) {
               variant={"outline"}
               className="flex cursor-pointer justify-between gap-2 rounded-full bg-[#EBEBF5] pl-1"
             >
-              <img src={icon}></img>
+              <img src={suiIcon}></img>
               <img src={caretDownIcon}></img>
             </Button>
           </div>
-          <div>{<Options {...props} />}</div>
+          <div>{<Options />}</div>
         </div>
 
         <div>
-          <Items {...props} />
+          <Items />
         </div>
       </DialogContent>
     </Dialog>
   );
 }
 
-function Options(props: SelectTokenProps) {
-  const { icon, name } = props;
+function Options() {
+  const icon = suiIcon;
+  const name = "SUI";
   const components = [];
   for (let i = 0; i < 8; i++) {
     components.push(
-      <Button
+      <span
         key={`option-${i}`}
-        variant={"outline"}
+        // variant={"outline"}
         className="flex cursor-pointer justify-between gap-2 rounded-full bg-[#EBEBF5] pl-1 text-[14px]"
       >
         <img src={icon}></img>
         <span className="uppercase">{name}</span>
-      </Button>,
+      </span>,
     );
   }
 
@@ -89,8 +106,10 @@ function Options(props: SelectTokenProps) {
   );
 }
 
-function Items(props: SelectTokenProps) {
-  const { icon, name } = props;
+function Items() {
+  const icon = suiIcon;
+  const name = "SUI";
+  // const { icon, name } = props;
   const components = [];
   for (let i = 0; i < 24; i++) {
     components.push(

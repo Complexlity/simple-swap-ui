@@ -1,12 +1,47 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useAtom, useAtomValue } from "jotai";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { inputTokenAtom, outputTokenAtom, userAtom } from "./atoms";
+import GeneralSettings from "./GeneralSettings";
 import arrowDownIcon from "@/assets/arrowDown.svg";
 import reloadIcon from "@/assets/reload.svg";
 import suiIcon from "@/assets/sui.svg";
 import usdcIcon from "@/assets/usdc.svg";
-import GeneralSettings from "../Statefull/GeneralSettings";
 import { SelectTokenDialog } from "./SelectTokenDialog";
 import { Button } from "@/components/ui/button";
+// const tokenSchema = z.union([
+//   z.string().regex(/^\d+$/), // matches strings that are only digits
+//   z.string().regex(/^\d+\.\d+$/), // matches strings that are a decimal number
+// ]);
+
+// const formSchema = z.object({
+//   inputTokenAmount: tokenSchema,
+//   outputTokenAmount: tokenSchema,
+// });
 
 export default function SwapCard() {
+  const user = useAtomValue(userAtom);
+  const [inputToken, setInputToken] = useAtom(inputTokenAtom);
+  const [outputToken, setOutputToken] = useAtom(outputTokenAtom);
+
+  function interchangeTokens() {
+    const temp = inputToken;
+    setInputToken(outputToken);
+    setOutputToken(temp);
+  }
+
+  // const form = useForm({
+  //   resolver: zodResolver(formSchema),
+  //   mode: "onChange",x
+  //   defaultValues: { inputTokenAmount: "", outputTokenAmount: "" },
+  // });
+
+  // function onSubmit(values: z.infer<typeof formSchema>) {
+  //   //Perform swap
+  //   console.log(values);
+  // }
+
   return (
     <div className="flex justify-center gap-4">
       <div className="flex w-[480px] flex-col gap-4 rounded-xl bg-[#F5F5FF] px-4 py-4">
@@ -37,7 +72,7 @@ export default function SwapCard() {
                 Sell
               </div>
               <div className="flex items-center justify-between">
-                <SelectTokenDialog name={"sui"} icon={suiIcon} />
+                <SelectTokenDialog type="buy" item={inputToken} />
                 <input
                   inputMode="decimal"
                   autoComplete="off"
@@ -60,7 +95,7 @@ export default function SwapCard() {
                 Buy
               </div>
               <div className="flex items-center justify-between">
-                <SelectTokenDialog name={"usdc"} icon={usdcIcon} />
+                <SelectTokenDialog type="sell" item={outputToken} />
                 <input
                   inputMode="decimal"
                   autoComplete="off"
@@ -78,9 +113,13 @@ export default function SwapCard() {
               </span>
             </div>
           </div>
-          <div className="absolute right-1/2 top-1/2 -translate-y-1/2 translate-x-1/2 cursor-pointer rounded-full border-[3px] border-[#F5F5FF] bg-[#DCDCE6] px-2 py-2 hover:bg-[#bdbdd0]">
+          <button
+            type="button"
+            onClick={() => interchangeTokens()}
+            className="absolute right-1/2 top-1/2 -translate-y-1/2 translate-x-1/2 cursor-pointer rounded-full border-[3px] border-[#F5F5FF] bg-[#DCDCE6] px-2 py-2 hover:bg-[#bdbdd0]"
+          >
             <img src={arrowDownIcon} className="h-6 w-6" />
-          </div>
+          </button>
         </div>
         <Button
           variant={"outline"}
