@@ -54,7 +54,6 @@ export default function GeneralSettings() {
     });
   }
 
-  console.log(form.getValues().slippageMode)
 
   return (
     <Dialog>
