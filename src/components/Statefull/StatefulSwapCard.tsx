@@ -1,17 +1,5 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useAtom, useAtomValue } from "jotai"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import {
-  inputTokenAtom,
-  outputTokenAtom,
-  tokensCacheAtom as tokensCacheAtom,
-  userAtom,
-} from "./atoms"
-import GeneralSettings from "./GeneralSettings"
 import arrowDownIcon from "@/assets/arrowDown.svg"
 import reloadIcon from "@/assets/reload.svg"
-import { SelectTokenDialog } from "./SelectTokenDialog"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -20,9 +8,22 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form"
-import { useEffect, useState } from "react"
-import { useTokens } from "./useTokens"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import {
+  inputTokenAtom,
+  mergedTokensWithCacheAtom,
+  outputTokenAtom,
+  tokensCacheAtom,
+  userAtom,
+} from "./atoms"
+import GeneralSettings from "./GeneralSettings"
+import { SelectTokenDialog } from "./SelectTokenDialog"
 import { Token } from "./token.types"
+import { useTokens } from "./useTokens"
 // const tokenSchema = z.union([
 //   z.string().regex(/^\d+$/), // matches strings that are only digits
 //   z.string().regex(/^\d+\.\d+$/), // matches strings that are a decimal number
@@ -45,17 +46,50 @@ export default function SwapCard() {
   const [inputToken, setInputToken] = useAtom(inputTokenAtom)
   const [outputToken, setOutputToken] = useAtom(outputTokenAtom)
   const [tokensWithCache, setTokensWithCache] = useAtom(tokensCacheAtom)
+  const setMergedTokensWithCache = useSetAtom(mergedTokensWithCacheAtom)
 
+ 
   useEffect(() => {
-    console.log(tokensWithCache)
-  }, [tokensWithCache])
-  useEffect(() => {
+    //Update tokens cached
+    if(!tokens) return
     updateRecentlyPicked("input")
-  }, [inputToken?.symbol])
+
+    //Don't allow setting same token as input and output
+    //Ref: https://app.uniswap.org/swap
+    if (inputToken?.symbol === outputToken?.symbol) {
+      setOutputToken(undefined)
+      form.setValue("inputTokenAmount", form.getValues("outputTokenAmount"))
+      form.setValue("outputTokenAmount", "")
+    }
+  }, [inputToken?.symbol, tokens])
 
   useEffect(() => {
+    if(!tokens) return
+    //Update tokens cached
     updateRecentlyPicked("output")
-  }, [outputToken?.symbol])
+
+    //Don't allow setting same token as input and output
+    //Ref: https://app.uniswap.org/swap
+    if (inputToken?.symbol === outputToken?.symbol) {
+      setInputToken(undefined)
+      form.setValue("outputTokenAmount", form.getValues("inputTokenAmount"))
+      form.setValue("inputTokenAmount", "")
+    }
+  }, [outputToken?.symbol, tokens])
+
+  function mergeTokensWithCacheTokens(
+    tokensFromCache: Token[],
+    allTokens: Token[] | undefined,
+  ) {
+    if (!allTokens) allTokens = []
+    let mergedArray = tokensFromCache.concat(allTokens)
+
+    mergedArray = mergedArray.filter(
+      (value, index, self) =>
+        index === self.findIndex((t) => t.symbol === value.symbol),
+    )
+    return mergedArray
+  }
 
   function updateRecentlyPicked(type: "input" | "output") {
     const changedToken = type === "input" ? inputToken : outputToken
@@ -63,7 +97,10 @@ export default function SwapCard() {
     let tokensCache = [...tokensWithCache]
     tokensCache = tokensCache.filter((a) => a.symbol !== changedToken?.symbol)
     tokensCache.unshift(changedToken)
+    const mergedTokens = mergeTokensWithCacheTokens(tokensCache, tokens)
     setTokensWithCache(tokensCache.slice(0, 8))
+    console.log(mergedTokens)
+    setMergedTokensWithCache(mergedTokens)
   }
 
   function interchangeTokens() {

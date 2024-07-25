@@ -24,6 +24,7 @@ export const nativeTokenData = {
 export const inputTokenAtom = atom<Token | undefined>(nativeTokenData)
 export const outputTokenAtom = atom<Token | undefined>(undefined)
 export const tokensCacheAtom = atom<Token[]>([])
+export const mergedTokensWithCacheAtom = atom<Token[]>([])
 
 type GeneralSettings = {
   slippageMode: "auto" | "fixed"

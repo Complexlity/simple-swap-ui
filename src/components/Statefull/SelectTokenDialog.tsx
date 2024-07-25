@@ -10,29 +10,45 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { SetAtom, SetStateAction, useAtomValue, useSetAtom } from "jotai"
+import {
+  atom,
+  //@ts-expect-error: Set atom not exported but recognized by typescript
+  SetAtom,
+  SetStateAction,
+  useAtom,
+  useAtomValue,
+  useSetAtom,
+} from "jotai"
 import { X } from "lucide-react"
-import { useState } from "react"
-import { inputTokenAtom, outputTokenAtom, tokensCacheAtom } from "./atoms"
+import { ReactNode, useMemo, useState } from "react"
+import { Skeleton } from "../ui/skeleton"
+import {
+  inputTokenAtom,
+  mergedTokensWithCacheAtom,
+  outputTokenAtom,
+} from "./atoms"
 import { Token } from "./token.types"
 import { useTokens } from "./useTokens"
-import { Skeleton } from "../ui/skeleton"
 
 type SelectTokenProps = {
   item?: Token
   type: "sell" | "buy"
 }
 
+const searchAtom = atom<string>("")
+
 export function SelectTokenDialog(props: SelectTokenProps) {
   const { type, item } = props
-  const [open, setOpen] = useState()
+  const [open, setOpen] = useState(false)
+  const [searchValue, setSearchValue] = useAtom(searchAtom)
+
   return (
     <Dialog open={open}>
       <DialogTrigger onClick={setOpen.bind(null, true)}>
         {item ? (
           <span className="flex cursor-pointer items-center justify-between gap-2 overflow-hidden rounded-full border border-[#DCDCE6] bg-[#F5F5FF] px-2 pl-1 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50">
             {<img src={item.logoURI} className="w-10 rounded-full"></img>}
-            <span className="uppercase">{item.name.split("(")[0]}</span>
+            <span className="uppercase">{item.symbol}</span>
             <img src={caretDownIcon}></img>
           </span>
         ) : (
@@ -57,6 +73,8 @@ export function SelectTokenDialog(props: SelectTokenProps) {
           </DialogHeader>
           <div className="flex w-full items-center space-x-2">
             <Input
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
               type="text"
               className="text-search w-full rounded-full bg-[#EBEBF5] py-2 pl-10 pr-4"
               placeholder="Search name or address"
@@ -77,7 +95,7 @@ export function SelectTokenDialog(props: SelectTokenProps) {
   )
 }
 
-function OptionsBase({ children }) {
+function OptionsBase({ children }: { children: ReactNode }) {
   return <div className="flex flex-wrap gap-x-[12px] gap-y-2">{children}</div>
 }
 
@@ -88,12 +106,13 @@ function Options({
   type: "buy" | "sell"
   setOpen: SetAtom<[SetStateAction<boolean>], void>
 }) {
-  const { data: tokens, isLoading } = useTokens()
+  const { isLoading } = useTokens()
   const setInputToken = useSetAtom(inputTokenAtom)
   const setOutputToken = useSetAtom(outputTokenAtom)
   const setToken = type === "sell" ? setInputToken : setOutputToken
-  const tokensCache = useAtomValue(tokensCacheAtom)
-  if (isLoading || tokensCache.length === 0) {
+  const mergedTokensWithCache = useAtomValue(mergedTokensWithCacheAtom)
+  console.log(mergedTokensWithCache)
+  if (isLoading) {
     const skeletons = []
     for (let i = 0; i < 8; i++) {
       skeletons.push(
@@ -106,12 +125,15 @@ function Options({
     return <OptionsBase>{skeletons}</OptionsBase>
   }
 
+  console.log({ isLoading, mergedTokensWithCache })
+
   // const shuffledArray = shuffle(tokens)
   const components = []
   // const usedItem = tokens!
   // const usedItem = tokensCache!
-  const usedItem = mergeTokensWithCacheTokens(tokensCache, tokens)
-  console.log({ tokensCache, tokens })
+  const usedItem = mergedTokensWithCache
+
+  console.log({ tokensCache: mergedTokensWithCache })
   console.log({ usedItem })
   for (let i = 0; i < 8; i++) {
     const item = usedItem[i]
@@ -133,7 +155,7 @@ function Options({
   return <OptionsBase>{components}</OptionsBase>
 }
 
-function ItemsBase({ children }) {
+function ItemsBase({ children }: { children: ReactNode }) {
   return (
     <div>
       <hr />
@@ -157,13 +179,23 @@ function Items({
   type: "buy" | "sell"
   setOpen: SetAtom<[SetStateAction<boolean>], void>
 }) {
-  const { data: tokens, isLoading } = useTokens()
+  const { isLoading } = useTokens()
 
   const setInputToken = useSetAtom(inputTokenAtom)
   const setOutputToken = useSetAtom(outputTokenAtom)
   const setToken = type === "sell" ? setInputToken : setOutputToken
-  const tokensCache = useAtomValue(tokensCacheAtom)
-  if (isLoading || tokensCache.length === 0) {
+  const mergedTokensWithCache = useAtomValue(mergedTokensWithCacheAtom)
+  const searchValue = useAtomValue(searchAtom)
+  const searchedItems = useMemo(() => {
+    if (!searchValue) return mergedTokensWithCache
+    return mergedTokensWithCache.filter((item) => {
+      return (
+        item.symbol.toLowerCase().includes(searchValue.toLowerCase()) ||
+        item.name.toLowerCase().includes(searchValue.toLowerCase())
+      )
+    })
+  }, [searchValue])
+  if (isLoading) {
     const skeletons = []
     for (let i = 0; i < 6; i++) {
       skeletons.push(
@@ -176,8 +208,10 @@ function Items({
   // const { icon, name } = props;
   const components = []
   // const usedItem = tokens!
-  const usedItem = mergeTokensWithCacheTokens(tokensCache, tokens)
-  for (let i = 0; i < 24; i++) {
+  // const usedItem = mergedTokensWithCache
+  const usedItem = searchedItems
+
+  for (let i = 0; i < usedItem.length; i++) {
     const token = usedItem[i]
     components.push(
       <div
@@ -204,38 +238,5 @@ function Items({
       </div>,
     )
   }
-  return <ItemsBase>{components};</ItemsBase>
-}
-
-function shuffle<T>(array: T[]) {
-  const tempArr = [...array]
-  let currentIndex = tempArr.length
-
-  // While there remain elements to shuffle...
-  while (currentIndex != 0) {
-    // Pick a remaining element...
-    const randomIndex = Math.floor(Math.random() * currentIndex)
-    currentIndex--
-
-    // And swap it with the current element.
-    ;[tempArr[currentIndex], tempArr[randomIndex]] = [
-      tempArr[randomIndex],
-      tempArr[currentIndex],
-    ]
-  }
-  return tempArr
-}
-
-function mergeTokensWithCacheTokens(
-  tokensFromCache: Token[],
-  allTokens: Token[] | undefined,
-) {
-  if (!allTokens) allTokens = []
-  let mergedArray = tokensFromCache.concat(allTokens)
-
-  mergedArray = mergedArray.filter(
-    (value, index, self) =>
-      index === self.findIndex((t) => t.symbol === value.symbol),
-  )
-  return mergedArray
+  return <ItemsBase>{components}</ItemsBase>
 }

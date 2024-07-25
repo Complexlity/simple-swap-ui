@@ -5,20 +5,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "@/components/ui/dialog"
 
-import gearLogo from "@/assets/gear.svg";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Switch } from "@/components/ui/switch";
-import { X } from "lucide-react";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { generalSettingsAtom } from "./atoms";
-import { useAtom } from "jotai";
-import { useState } from "react";
-import { Label } from "@/components/ui/label";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import gearLogo from "@/assets/gear.svg"
+import { Button, buttonVariants } from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -26,34 +16,46 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { toast } from "@/components/ui/use-toast";
+} from "@/components/ui/form"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Switch } from "@/components/ui/switch"
+import { toast } from "@/components/ui/use-toast"
+import { cn } from "@/lib/utils"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useAtom } from "jotai"
+import { X } from "lucide-react"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { generalSettingsAtom } from "./atoms"
+import { useEffect, useState } from "react"
 
 const FormSchema = z.object({
   slippageMode: z.enum(["auto", "fixed"]).default("auto"),
   directRoute: z.boolean().default(false),
-});
+})
 
 export default function GeneralSettings() {
-  const [generalSettings, setGeneralSettings] = useAtom(generalSettingsAtom);
+  const [generalSettings, setGeneralSettings] = useAtom(generalSettingsAtom)
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: generalSettings,
-  });
+  })
+
+  useEffect(() => {
+    form.reset({ ...generalSettings })
+  }, [])
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
+    setGeneralSettings({
+      directRoute: data.directRoute,
+      slippageMode: data.slippageMode,
+    })
     toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+      variant: "success",
+      title: "General Settings Saved Successfully",
+    })
   }
-
 
   return (
     <Dialog>
@@ -64,11 +66,18 @@ export default function GeneralSettings() {
       </DialogTrigger>
       <DialogContent className="w-[480px] bg-[#F5F5FF]">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
             <DialogHeader>
               <DialogTitle className="relative flex items-center justify-between text-center text-[18px] font-semibold">
                 <span className="w-full items-center">General Settings</span>
-                <DialogClose asChild>
+                <DialogClose
+                  // Re-sync state if settings do not change
+                  onClick={() => form.reset({ ...generalSettings })}
+                  asChild
+                >
                   <span className="cursor-pointer">
                     <X
                       size={4}
@@ -156,43 +165,11 @@ export default function GeneralSettings() {
               )}
             />
 
-            {/* <div className="flex items-center justify-between rounded-lg bg-[#EBEBF5] px-4 py-4">
-              <div className="flex gap-4">
-                <Button
-                  onClick={() => setSlippageMode("auto")}
-                  className={cn(
-                    "rounded-lg bg-[#787882] font-medium hover:bg-blue-400",
-                    {
-                      "bg-[#197CFF]": slippageMode === "auto",
-                    },
-                  )}
-                >
-                  Auto
-                </Button>
-
-                <Button
-                  onClick={() => setSlippageMode("fixed")}
-                  className={cn(
-                    "rounded-lg bg-[#787882] font-medium hover:bg-blue-400",
-                    {
-                      "bg-[#197CFF]": slippageMode === "fixed",
-                    },
-                  )}
-                >
-                  Fixed
-                </Button>
-              </div>
-            </div> */}
-
-            {/* <div className="flex items-center justify-between rounded-lg bg-[#EBEBF5] px-4 py-6">
-              <span>Direct Route Only</span>
-              <Switch className="text-[#006EFF] data-[state=checked]:bg-[#006EFF]" />
-            </div> */}
             <DialogClose asChild>
               <Button
-                onClick={() => saveSettings}
+                type="submit"
                 variant={"outline"}
-                className="cursor-pointer rounded-lg bg-[#CCE2FF] py-6 text-[#006EFF] hover:bg-blue-200 hover:text-[#006EFF]"
+                className="w-full cursor-pointer rounded-lg bg-[#CCE2FF] py-6 text-[#006EFF] hover:bg-blue-200 hover:text-[#006EFF]"
               >
                 Save Settings
               </Button>
@@ -201,9 +178,5 @@ export default function GeneralSettings() {
         </Form>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function saveSettings() {
-  console.log("Settings was saved");
+  )
 }
