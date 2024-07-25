@@ -1,20 +1,28 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useAtom, useAtomValue } from "jotai";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { inputTokenAtom, outputTokenAtom, userAtom } from "./atoms";
-import GeneralSettings from "./GeneralSettings";
-import arrowDownIcon from "@/assets/arrowDown.svg";
-import reloadIcon from "@/assets/reload.svg";
-import { SelectTokenDialog } from "./SelectTokenDialog";
-import { Button } from "@/components/ui/button";
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useAtom, useAtomValue } from "jotai"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import {
+  inputTokenAtom,
+  outputTokenAtom,
+  tokensCacheAtom as tokensCacheAtom,
+  userAtom,
+} from "./atoms"
+import GeneralSettings from "./GeneralSettings"
+import arrowDownIcon from "@/assets/arrowDown.svg"
+import reloadIcon from "@/assets/reload.svg"
+import { SelectTokenDialog } from "./SelectTokenDialog"
+import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-} from "@/components/ui/form";
+} from "@/components/ui/form"
+import { useEffect, useState } from "react"
+import { useTokens } from "./useTokens"
+import { Token } from "./token.types"
 // const tokenSchema = z.union([
 //   z.string().regex(/^\d+$/), // matches strings that are only digits
 //   z.string().regex(/^\d+\.\d+$/), // matches strings that are a decimal number
@@ -24,41 +32,63 @@ import {
 //   z.number()
 // ]);
 
-const tokenSchema = z.string().min(1);
+const tokenSchema = z.string().min(1)
 
 const formSchema = z.object({
   inputTokenAmount: tokenSchema,
   outputTokenAmount: tokenSchema,
-});
+})
 
 export default function SwapCard() {
-  const user = useAtomValue(userAtom);
-  const [inputToken, setInputToken] = useAtom(inputTokenAtom);
-  const [outputToken, setOutputToken] = useAtom(outputTokenAtom);
+  const user = useAtomValue(userAtom)
+  const { data: tokens } = useTokens()
+  const [inputToken, setInputToken] = useAtom(inputTokenAtom)
+  const [outputToken, setOutputToken] = useAtom(outputTokenAtom)
+  const [tokensWithCache, setTokensWithCache] = useAtom(tokensCacheAtom)
+
+  useEffect(() => {
+    console.log(tokensWithCache)
+  }, [tokensWithCache])
+  useEffect(() => {
+    updateRecentlyPicked("input")
+  }, [inputToken?.symbol])
+
+  useEffect(() => {
+    updateRecentlyPicked("output")
+  }, [outputToken?.symbol])
+
+  function updateRecentlyPicked(type: "input" | "output") {
+    const changedToken = type === "input" ? inputToken : outputToken
+    if (!changedToken || !tokens) return
+    let tokensCache = [...tokensWithCache]
+    tokensCache = tokensCache.filter((a) => a.symbol !== changedToken?.symbol)
+    tokensCache.unshift(changedToken)
+    setTokensWithCache(tokensCache.slice(0, 8))
+  }
 
   function interchangeTokens() {
-    const tempToken = inputToken;
+    const tempToken = inputToken
     const tempAmount = form.getValues("inputTokenAmount")
-    setInputToken(outputToken);
-    form.setValue('inputTokenAmount', form.getValues("outputTokenAmount"))
-    setOutputToken(tempToken);
-    form.setValue('outputTokenAmount', tempAmount)
+    setInputToken(outputToken)
+    form.setValue("inputTokenAmount", form.getValues("outputTokenAmount"))
+    setOutputToken(tempToken)
+    form.setValue("outputTokenAmount", tempAmount)
   }
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: { inputTokenAmount: "", outputTokenAmount: "" },
-  });
+  })
 
   function setInputAmountFromBalance(percentage: number) {
-    const inputValue = (percentage / 100) * user.balance;
-    form.setValue("inputTokenAmount", `${inputValue}`);
+    const inputValue = (percentage / 100) * user.balance
+    form.setValue("inputTokenAmount", `${inputValue}`)
   }
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     //Perform swap
-    console.log("I submitted");
-    console.log(values);
+    console.log("I submitted")
+    console.log(values)
   }
 
   return (
@@ -116,7 +146,7 @@ export default function SwapCard() {
                         Sell
                       </FormLabel>
                       <div className="flex items-center justify-between gap-4">
-                        <SelectTokenDialog type="buy" item={inputToken} />
+                        <SelectTokenDialog type="sell" item={inputToken} />
                         <FormControl>
                           <input
                             {...field}
@@ -153,7 +183,7 @@ export default function SwapCard() {
                         Buy
                       </FormLabel>
                       <div className="flex items-center justify-between gap-4">
-                        <SelectTokenDialog type="sell" item={outputToken} />
+                        <SelectTokenDialog type="buy" item={outputToken} />
                         <FormControl>
                           <input
                             {...field}
@@ -204,5 +234,5 @@ export default function SwapCard() {
         </div>
       </div>
     </div>
-  );
+  )
 }

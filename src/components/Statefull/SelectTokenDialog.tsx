@@ -1,5 +1,6 @@
-import caretDownIcon from "@/assets/caretDown.svg";
-import { Button } from "@/components/ui/button";
+import caretDownIcon from "@/assets/caretDown.svg"
+import suiIcon from "@/assets/sui.svg"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogClose,
@@ -7,38 +8,35 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { X } from "lucide-react";
-import { Token } from "./token.types";
-import suiIcon from "@/assets/sui.svg";
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { SetAtom, SetStateAction, useAtomValue, useSetAtom } from "jotai"
+import { X } from "lucide-react"
+import { useState } from "react"
+import { inputTokenAtom, outputTokenAtom, tokensCacheAtom } from "./atoms"
+import { Token } from "./token.types"
+import { useTokens } from "./useTokens"
+import { Skeleton } from "../ui/skeleton"
 
 type SelectTokenProps = {
-  item?: Token;
-  type: "sell" | "buy";
-};
+  item?: Token
+  type: "sell" | "buy"
+}
 
 export function SelectTokenDialog(props: SelectTokenProps) {
-  const { type, item } = props;
-
+  const { type, item } = props
+  const [open, setOpen] = useState()
   return (
-    <Dialog>
-      <DialogTrigger>
+    <Dialog open={open}>
+      <DialogTrigger onClick={setOpen.bind(null, true)}>
         {item ? (
-          <span
-            className="hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50 flex cursor-pointer justify-between gap-2 overflow-hidden rounded-full border border-[#DCDCE6] bg-[#F5F5FF] pl-1 items-center px-2 "
-          >
-            {<img src={item.logoURI} className="rounded-full w-10"></img>}
-            <span className="uppercase">
-              {item ? item.name : "Select Token"}
-            </span>
+          <span className="flex cursor-pointer items-center justify-between gap-2 overflow-hidden rounded-full border border-[#DCDCE6] bg-[#F5F5FF] px-2 pl-1 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50">
+            {<img src={item.logoURI} className="w-10 rounded-full"></img>}
+            <span className="uppercase">{item.name.split("(")[0]}</span>
             <img src={caretDownIcon}></img>
           </span>
         ) : (
-          <span
-              className="dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50
-            flex cursor-pointer justify-between gap-2 overflow-hidden rounded-full border border-[#DCDCE6] pl-1 bg-blue-400 text-white  hover:bg-green-500 hover:text-white px-2 py-2"
-          >
+          <span className="flex cursor-pointer justify-between gap-2 overflow-hidden rounded-full border border-[#DCDCE6] bg-blue-400 px-2 py-2 pl-1 text-white hover:bg-green-500 hover:text-white dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50">
             <span className="pl-2">Select Token</span>
             <img src={caretDownIcon}></img>
           </span>
@@ -49,7 +47,7 @@ export function SelectTokenDialog(props: SelectTokenProps) {
           <DialogHeader>
             <DialogTitle className="relative flex items-center justify-between text-center text-xl font-semibold">
               <span className="w-full items-center">Select Token</span>
-              <DialogClose asChild>
+              <DialogClose asChild onClick={setOpen.bind(null, false)}>
                 <span className="cursor-pointer">
                   <X className="right-0 top-1/2 h-8 w-8 text-gray-500 hover:text-blue-400" />
                   <span className="sr-only">Close</span>
@@ -60,7 +58,7 @@ export function SelectTokenDialog(props: SelectTokenProps) {
           <div className="flex w-full items-center space-x-2">
             <Input
               type="text"
-              className="text-search py-2 rounded-full bg-[#EBEBF5] pl-10 pr-4"
+              className="text-search w-full rounded-full bg-[#EBEBF5] py-2 pl-10 pr-4"
               placeholder="Search name or address"
             />
             <Button
@@ -71,64 +69,71 @@ export function SelectTokenDialog(props: SelectTokenProps) {
               <img src={caretDownIcon}></img>
             </Button>
           </div>
-          <div>{<Options />}</div>
+          <div>{<Options type={type} setOpen={setOpen} />}</div>
         </div>
-
-        <div>
-          <Items />
-        </div>
+        <Items type={type} setOpen={setOpen} />
       </DialogContent>
     </Dialog>
-  );
+  )
 }
 
-function Options() {
-  const icon = suiIcon;
-  const name = "SUI";
-  const components = [];
+function OptionsBase({ children }) {
+  return <div className="flex flex-wrap gap-x-[12px] gap-y-2">{children}</div>
+}
+
+function Options({
+  type,
+  setOpen,
+}: {
+  type: "buy" | "sell"
+  setOpen: SetAtom<[SetStateAction<boolean>], void>
+}) {
+  const { data: tokens, isLoading } = useTokens()
+  const setInputToken = useSetAtom(inputTokenAtom)
+  const setOutputToken = useSetAtom(outputTokenAtom)
+  const setToken = type === "sell" ? setInputToken : setOutputToken
+  const tokensCache = useAtomValue(tokensCacheAtom)
+  if (isLoading || tokensCache.length === 0) {
+    const skeletons = []
+    for (let i = 0; i < 8; i++) {
+      skeletons.push(
+        <Skeleton
+          key={`options-skeleton-${i}`}
+          className="w-24 rounded-full py-5"
+        />,
+      )
+    }
+    return <OptionsBase>{skeletons}</OptionsBase>
+  }
+
+  // const shuffledArray = shuffle(tokens)
+  const components = []
+  // const usedItem = tokens!
+  // const usedItem = tokensCache!
+  const usedItem = mergeTokensWithCacheTokens(tokensCache, tokens)
+  console.log({ tokensCache, tokens })
+  console.log({ usedItem })
   for (let i = 0; i < 8; i++) {
+    const item = usedItem[i]
     components.push(
       <span
-        key={`option-${i}`}
-        // variant={"outline"}
-        className="flex cursor-pointer justify-between gap-2 rounded-full bg-[#EBEBF5] pl-1 text-[14px]"
+        key={`option-${type}-${i}`}
+        onClick={() => {
+          setToken(item)
+          setOpen(false)
+        }}
+        className="flex cursor-pointer items-center justify-between gap-2 rounded-full bg-[#EBEBF5] px-4 py-2 pl-1 text-[14px] hover:bg-gray-300"
       >
-        <img src={icon}></img>
-        <span className="uppercase">{name}</span>
+        <img src={item.logoURI} className="h-6 w-6 rounded-full"></img>
+        <span className="uppercase">{item.symbol}</span>
       </span>,
-    );
+    )
   }
 
-  return (
-    <div className="flex flex-wrap gap-x-[12px] gap-y-2">{components}</div>
-  );
+  return <OptionsBase>{components}</OptionsBase>
 }
 
-function Items() {
-  const icon = suiIcon;
-  const name = "SUI";
-  // const { icon, name } = props;
-  const components = [];
-  for (let i = 0; i < 24; i++) {
-    components.push(
-      <div
-        key={`option-${i}`}
-        className="flex cursor-pointer items-center justify-between rounded-lg bg-[#EBEBF5] px-4 py-2 text-[14px] hover:bg-[#DCDCE6]"
-      >
-        <div className="flex gap-2">
-          <img className="size-10" src={icon}></img>
-          <div className="flex flex-col">
-            <span className="font-medium uppercase text-[#0C0C14]">{name}</span>
-            <span>{name.toLowerCase()}</span>
-          </div>
-        </div>
-        <div className="flex flex-col text-end">
-          <span className="font-medium text-[#0C0C14]">789</span>
-          <span className="text-[14px]">$843.267</span>
-        </div>
-      </div>,
-    );
-  }
+function ItemsBase({ children }) {
   return (
     <div>
       <hr />
@@ -138,9 +143,99 @@ function Items() {
             <span>Token</span>
             <span>Balance</span>
           </div>
-          <div className="flex flex-col gap-2">{components}</div>;
+          <div className="flex flex-col gap-2">{children}</div>
         </div>
       </div>
     </div>
-  );
+  )
+}
+
+function Items({
+  type,
+  setOpen,
+}: {
+  type: "buy" | "sell"
+  setOpen: SetAtom<[SetStateAction<boolean>], void>
+}) {
+  const { data: tokens, isLoading } = useTokens()
+
+  const setInputToken = useSetAtom(inputTokenAtom)
+  const setOutputToken = useSetAtom(outputTokenAtom)
+  const setToken = type === "sell" ? setInputToken : setOutputToken
+  const tokensCache = useAtomValue(tokensCacheAtom)
+  if (isLoading || tokensCache.length === 0) {
+    const skeletons = []
+    for (let i = 0; i < 6; i++) {
+      skeletons.push(
+        <Skeleton key={`items-skeleton-${i}`} className="rounded-xl py-7" />,
+      )
+    }
+    return <ItemsBase>{skeletons}</ItemsBase>
+  }
+  console.log({ type })
+  // const { icon, name } = props;
+  const components = []
+  // const usedItem = tokens!
+  const usedItem = mergeTokensWithCacheTokens(tokensCache, tokens)
+  for (let i = 0; i < 24; i++) {
+    const token = usedItem[i]
+    components.push(
+      <div
+        onClick={() => {
+          setToken(token)
+          setOpen(false)
+        }}
+        key={`item-${type}-${i}`}
+        className="flex cursor-pointer items-center justify-between rounded-lg bg-[#EBEBF5] px-4 py-2 text-[14px] hover:bg-[#DCDCE6]"
+      >
+        <div className="flex gap-2">
+          <img className="size-10 rounded-full" src={token.logoURI}></img>
+          <div className="flex flex-col">
+            <span className="font-medium uppercase text-[#0C0C14]">
+              {token.name.split("(")[0]}
+            </span>
+            <span>{token.symbol}</span>
+          </div>
+        </div>
+        <div className="flex flex-col text-end">
+          <span className="font-medium text-[#0C0C14]">789</span>
+          <span className="text-[14px]">$843.267</span>
+        </div>
+      </div>,
+    )
+  }
+  return <ItemsBase>{components};</ItemsBase>
+}
+
+function shuffle<T>(array: T[]) {
+  const tempArr = [...array]
+  let currentIndex = tempArr.length
+
+  // While there remain elements to shuffle...
+  while (currentIndex != 0) {
+    // Pick a remaining element...
+    const randomIndex = Math.floor(Math.random() * currentIndex)
+    currentIndex--
+
+    // And swap it with the current element.
+    ;[tempArr[currentIndex], tempArr[randomIndex]] = [
+      tempArr[randomIndex],
+      tempArr[currentIndex],
+    ]
+  }
+  return tempArr
+}
+
+function mergeTokensWithCacheTokens(
+  tokensFromCache: Token[],
+  allTokens: Token[] | undefined,
+) {
+  if (!allTokens) allTokens = []
+  let mergedArray = tokensFromCache.concat(allTokens)
+
+  mergedArray = mergedArray.filter(
+    (value, index, self) =>
+      index === self.findIndex((t) => t.symbol === value.symbol),
+  )
+  return mergedArray
 }
