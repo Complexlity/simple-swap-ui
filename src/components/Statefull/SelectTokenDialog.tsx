@@ -20,7 +20,7 @@ import {
   useSetAtom,
 } from "jotai"
 import { X } from "lucide-react"
-import { ReactNode, useMemo, useState } from "react"
+import { ReactNode, useEffect, useMemo, useState } from "react"
 import { Skeleton } from "../ui/skeleton"
 import {
   inputTokenAtom,
@@ -42,6 +42,10 @@ export function SelectTokenDialog(props: SelectTokenProps) {
   const [open, setOpen] = useState(false)
   const [searchValue, setSearchValue] = useAtom(searchAtom)
 
+  useEffect(() => {
+    setSearchValue("")
+  }, [open])
+
   return (
     <Dialog open={open}>
       <DialogTrigger onClick={setOpen.bind(null, true)}>
@@ -58,7 +62,10 @@ export function SelectTokenDialog(props: SelectTokenProps) {
           </span>
         )}
       </DialogTrigger>
-      <DialogContent className="bg-green-4000 max-w-[480px] rounded-2xl bg-[#F5F5FF] px-0 sm:rounded-2xl">
+      <DialogContent
+        onInteractOutside={() => setOpen(false)}
+        className="bg-green-4000 max-w-[480px] rounded-2xl bg-[#F5F5FF] px-0 sm:rounded-2xl"
+      >
         <div className="grid gap-4 px-4">
           <DialogHeader>
             <DialogTitle className="relative flex items-center justify-between text-center text-xl font-semibold">

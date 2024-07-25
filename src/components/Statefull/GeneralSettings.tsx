@@ -24,11 +24,10 @@ import { cn } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAtom } from "jotai"
 import { X } from "lucide-react"
+import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { generalSettingsAtom } from "./atoms"
-import { useEffect, useState } from "react"
-
 const FormSchema = z.object({
   slippageMode: z.enum(["auto", "fixed"]).default("auto"),
   directRoute: z.boolean().default(false),
@@ -110,7 +109,7 @@ export default function GeneralSettings() {
                         <FormLabel
                           className={buttonVariants({
                             className: cn(
-                              "rounded-lg bg-[#787882] font-medium hover:bg-blue-400",
+                              "cursor-pointer rounded-lg bg-[#787882] font-medium hover:bg-blue-400",
                               {
                                 "bg-[#197CFF]":
                                   form.getValues().slippageMode === "auto",
@@ -128,7 +127,7 @@ export default function GeneralSettings() {
                         <FormLabel
                           className={buttonVariants({
                             className: cn(
-                              "rounded-lg bg-[#787882] font-medium hover:bg-blue-400",
+                              "cursor-pointer rounded-lg bg-[#787882] font-medium hover:bg-blue-400",
                               {
                                 "bg-[#197CFF]":
                                   form.getValues().slippageMode === "fixed",
