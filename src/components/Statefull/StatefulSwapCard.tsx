@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import {
@@ -24,14 +24,6 @@ import GeneralSettings from "./GeneralSettings"
 import { SelectTokenDialog } from "./SelectTokenDialog"
 import { Token } from "./token.types"
 import { useTokens } from "./useTokens"
-// const tokenSchema = z.union([
-//   z.string().regex(/^\d+$/), // matches strings that are only digits
-//   z.string().regex(/^\d+\.\d+$/), // matches strings that are a decimal number
-// ]);
-// const tokenSchema = z.union([
-//   z.number(),
-//   z.number()
-// ]);
 
 const tokenSchema = z.string().min(1)
 
@@ -47,11 +39,13 @@ export default function SwapCard() {
   const [outputToken, setOutputToken] = useAtom(outputTokenAtom)
   const [tokensWithCache, setTokensWithCache] = useAtom(tokensCacheAtom)
   const setMergedTokensWithCache = useSetAtom(mergedTokensWithCacheAtom)
+  //Token B = 0.1 x token
+  const [dummyPrice, setDummyPrice] = useState(0.1)
 
- 
+  //Token caching
   useEffect(() => {
-    //Update tokens cached
-    if(!tokens) return
+    if (!tokens) return
+    //Update tokens cache
     updateRecentlyPicked("input")
 
     //Don't allow setting same token as input and output
@@ -63,9 +57,10 @@ export default function SwapCard() {
     }
   }, [inputToken?.symbol, tokens])
 
+  //Tokens caching
   useEffect(() => {
-    if(!tokens) return
-    //Update tokens cached
+    if (!tokens) return
+    //Update tokens cache
     updateRecentlyPicked("output")
 
     //Don't allow setting same token as input and output
@@ -77,20 +72,13 @@ export default function SwapCard() {
     }
   }, [outputToken?.symbol, tokens])
 
-  function mergeTokensWithCacheTokens(
-    tokensFromCache: Token[],
-    allTokens: Token[] | undefined,
-  ) {
-    if (!allTokens) allTokens = []
-    let mergedArray = tokensFromCache.concat(allTokens)
+  //Update Dummy token price when the tokens change
+  useEffect(() => {
+    const newDummyPrice = Math.random() * (1 - 0.01) + 0.01
+    setDummyPrice(Number(newDummyPrice.toFixed(2)))
+  }, [inputToken?.symbol, outputToken?.symbol])
 
-    mergedArray = mergedArray.filter(
-      (value, index, self) =>
-        index === self.findIndex((t) => t.symbol === value.symbol),
-    )
-    return mergedArray
-  }
-
+  //Function that actually does the caching
   function updateRecentlyPicked(type: "input" | "output") {
     const changedToken = type === "input" ? inputToken : outputToken
     if (!changedToken || !tokens) return
@@ -99,9 +87,9 @@ export default function SwapCard() {
     tokensCache.unshift(changedToken)
     const mergedTokens = mergeTokensWithCacheTokens(tokensCache, tokens)
     setTokensWithCache(tokensCache.slice(0, 8))
-    console.log(mergedTokens)
     setMergedTokensWithCache(mergedTokens)
   }
+
 
   function interchangeTokens() {
     const tempToken = inputToken
@@ -110,12 +98,16 @@ export default function SwapCard() {
     form.setValue("inputTokenAmount", form.getValues("outputTokenAmount"))
     setOutputToken(tempToken)
     form.setValue("outputTokenAmount", tempAmount)
+    if (dummyPrice) {
+      setDummyPrice(1 / dummyPrice)
+    }
   }
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: { inputTokenAmount: "", outputTokenAmount: "" },
   })
+
 
   function setInputAmountFromBalance(percentage: number) {
     const inputValue = (percentage / 100) * user.balance
@@ -187,12 +179,29 @@ export default function SwapCard() {
                         <FormControl>
                           <input
                             {...field}
+                            onChange={(e) => {
+                              const value = Number(e.target.value)
+                              //Since we're using type="text" prevents the user entering a non number or decimal value
+                              if (isNaN(value)) return
+                              if (outputToken) {
+                                const calculatedOutput =
+                                  Number(e.target.value) * dummyPrice
+                                //Sets the output token depending on the price
+                                form.setValue(
+                                  "outputTokenAmount",
+                                  formatNumber(calculatedOutput).toString(),
+                                )
+                              }
+                              //Prevents scenarios like 01 or 0281732.2746
+                              e.target.value = value.toString()
+                              field.onChange(e)
+                            }}
                             inputMode="decimal"
                             autoComplete="off"
                             autoCorrect="off"
-                            type="number"
+                            type="text"
                             pattern="^[0-9]*[.,]?[0-9]*$"
-                            className="w-0 flex-1 border-none bg-transparent text-right text-5xl outline-none"
+                            className="w-0 flex-1 border-none bg-transparent text-right text-5xl text-gray-600 outline-none placeholder:text-gray-600"
                             placeholder="0"
                             minLength={1}
                             maxLength={79}
@@ -224,12 +233,29 @@ export default function SwapCard() {
                         <FormControl>
                           <input
                             {...field}
+                            onChange={(e) => {
+                              const value = Number(e.target.value)
+                              //Since we're using type="text" prevents the user entering a non number or decimal value
+                              if (isNaN(value)) return
+                              if (inputToken) {
+                                const calculatedInput =
+                                  Number(e.target.value) / dummyPrice
+                                //Sets the input token depending on the price
+                                form.setValue(
+                                  "inputTokenAmount",
+                                  formatNumber(calculatedInput).toString(),
+                                )
+                              }
+                              //Prevent scenarios like 01 or 028271
+                              e.target.value = value.toString()
+                              field.onChange(e)
+                            }}
                             inputMode="decimal"
                             autoComplete="off"
                             autoCorrect="off"
-                            type="number"
+                            type="text"
                             pattern="^[0-9]*[.,]?[0-9]*$"
-                            className="w-0 flex-1 appearance-none border-none bg-transparent text-right text-5xl outline-none"
+                            className="w-0 flex-1 appearance-none border-none bg-transparent text-right text-5xl text-gray-600 outline-none placeholder:text-gray-600"
                             placeholder="0"
                             minLength={1}
                             maxLength={79}
@@ -272,4 +298,23 @@ export default function SwapCard() {
       </div>
     </div>
   )
+}
+
+//Function to merge tokens from cache and all tokens removing possible duplicates
+function mergeTokensWithCacheTokens(
+  tokensFromCache: Token[],
+  allTokens: Token[] | undefined,
+) {
+  if (!allTokens) allTokens = []
+  let mergedArray = tokensFromCache.concat(allTokens)
+
+  mergedArray = mergedArray.filter(
+    (value, index, self) =>
+      index === self.findIndex((t) => t.symbol === value.symbol),
+  )
+  return mergedArray
+}
+
+function formatNumber(num: number) {
+  return num === 0 ? 0 : Number(num.toFixed(2))
 }

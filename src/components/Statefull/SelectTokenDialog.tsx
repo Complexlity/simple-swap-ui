@@ -118,7 +118,6 @@ function Options({
   const setOutputToken = useSetAtom(outputTokenAtom)
   const setToken = type === "sell" ? setInputToken : setOutputToken
   const mergedTokensWithCache = useAtomValue(mergedTokensWithCacheAtom)
-  console.log(mergedTokensWithCache)
   if (isLoading) {
     const skeletons = []
     for (let i = 0; i < 8; i++) {
@@ -132,7 +131,6 @@ function Options({
     return <OptionsBase>{skeletons}</OptionsBase>
   }
 
-  console.log({ isLoading, mergedTokensWithCache })
 
   // const shuffledArray = shuffle(tokens)
   const components = []
@@ -140,8 +138,6 @@ function Options({
   // const usedItem = tokensCache!
   const usedItem = mergedTokensWithCache
 
-  console.log({ tokensCache: mergedTokensWithCache })
-  console.log({ usedItem })
   for (let i = 0; i < 8; i++) {
     const item = usedItem[i]
     components.push(
@@ -211,11 +207,7 @@ function Items({
     }
     return <ItemsBase>{skeletons}</ItemsBase>
   }
-  console.log({ type })
-  // const { icon, name } = props;
   const components = []
-  // const usedItem = tokens!
-  // const usedItem = mergedTokensWithCache
   const usedItem = searchedItems
 
   for (let i = 0; i < usedItem.length; i++) {
