@@ -262,12 +262,13 @@ export default function SwapCard() {
                               }
                               console.log(value, e.target.value)
                               e.target.value =
-                                e.target.value == "" ? "":
-                                e.target.value == "."
-                                  ? "0."
-                                  : e.target.value.endsWith(".")
-                                    ? e.target.value
-                                    : `${Number(e.target.value)}`
+                                e.target.value == ""
+                                  ? ""
+                                  : e.target.value == "."
+                                    ? "0."
+                                    : e.target.value.endsWith(".")
+                                      ? e.target.value
+                                      : `${Number(e.target.value)}`
 
                               field.onChange(e)
                             }}
@@ -321,12 +322,13 @@ export default function SwapCard() {
 
                               //Prevents scenarios like 01.727, 0371
                               e.target.value =
-                              e.target.value == "" ? "":
-                                e.target.value == "."
-                                  ? "0."
-                                  : e.target.value.endsWith(".")
-                                    ? e.target.value
-                                    : `${Number(e.target.value)}`
+                                e.target.value == ""
+                                  ? ""
+                                  : e.target.value == "."
+                                    ? "0."
+                                    : e.target.value.endsWith(".")
+                                      ? e.target.value
+                                      : `${Number(e.target.value)}`
                               field.onChange(e)
                             }}
                             inputMode="decimal"
@@ -396,7 +398,7 @@ export default function SwapCard() {
           </AlertDialog>
         </form>
       </Form>
-      <div className="flex gap-2 sm:flex-col">
+      <div className="flex w-full sm:w-auto max-w-[480px] justify-end gap-2 sm:flex-col sm:justify-normal">
         <GeneralSettings />
         <button
           onClick={() => resetAll()}
