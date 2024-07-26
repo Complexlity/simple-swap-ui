@@ -92,7 +92,7 @@ export default function GeneralSettings() {
               control={form.control}
               name="slippageMode"
               render={({ field }) => (
-                <FormItem className="flex items-center justify-between rounded-lg bg-[#EBEBF5] px-4 py-4">
+                <FormItem className="flex items-center justify-between rounded-lg bg-[#EBEBF5] border border-[#DCDCE6] px-4 py-4">
                   <FormLabel>
                     <span>Slippage Mode</span>
                   </FormLabel>

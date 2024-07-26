@@ -32,7 +32,7 @@ export default function SwapCard() {
         </div>
         <div className="relative">
           <div className="flex flex-col gap-2">
-            <div className="rounded-lg bg-[#EBEBF5] px-3 py-2">
+            <div tabIndex={0} className="rounded-lg bg-[#EBEBF5] px-3 py-2 focus:border focus:border-[#006EFF]">
               <div className="flex justify-end text-[14px] text-[#787882]">
                 Sell
               </div>
@@ -55,7 +55,7 @@ export default function SwapCard() {
               </span>
             </div>
 
-            <div className="rounded-lg bg-[#EBEBF5] px-3 py-2">
+            <div tabIndex={0} className="rounded-lg bg-[#EBEBF5] px-3 py-2 focus:border focus:border-[#006EFF]">
               <div className="flex justify-end text-[14px] text-[#787882]">
                 Buy
               </div>

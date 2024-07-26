@@ -252,7 +252,7 @@ export default function SwapCard() {
                 name="inputTokenAmount"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="rounded-lg bg-[#EBEBF5] px-3 py-2">
+                    <div tabIndex={0} className="rounded-lg bg-[#EBEBF5]  px-3 py-2 focus:border focus:border-[#006EFF]">
                       <FormLabel className="flex justify-end text-[14px] text-[#787882]">
                         Sell
                       </FormLabel>
@@ -312,7 +312,7 @@ export default function SwapCard() {
                 name="outputTokenAmount"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="rounded-lg bg-[#EBEBF5] px-3 py-2">
+                    <div tabIndex={0} className="rounded-lg bg-[#EBEBF5] px-3 py-2 focus:border focus:border-[#006EFF]">
                       <FormLabel className="flex justify-end text-[14px] text-[#787882]">
                         Buy
                       </FormLabel>

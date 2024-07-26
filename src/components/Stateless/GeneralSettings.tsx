@@ -35,7 +35,7 @@ export default function GeneralSettings() {
             </DialogClose>
           </DialogTitle>
         </DialogHeader>
-        <div className="flex items-center justify-between rounded-lg bg-[#EBEBF5] px-4 py-4">
+        <div className="flex items-center justify-between rounded-lg bg-[#EBEBF5] border border-[#DCDCE6] px-4 py-4">
           <span>Slippage Mode</span>
           <div className="flex gap-4">
             <Button className="rounded-lg bg-[#197CFF] font-medium hover:bg-blue-400">
