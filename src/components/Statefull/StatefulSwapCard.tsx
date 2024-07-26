@@ -187,13 +187,13 @@ export default function SwapCard() {
   }
 
   return (
-    <div className=" w-full flex flex-col-reverse justify-center gap-4 sm:flex-row">
+    <div className="flex w-full flex-col-reverse justify-center gap-4 sm:flex-row">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex w-full max-w-[480px]  flex-col gap-4 rounded-xl bg-[#F5F5FF] px-4 py-4"
+          className="flex w-full max-w-[480px] flex-col gap-4 rounded-xl bg-[#F5F5FF] px-4 py-4"
         >
-          <div className="flex flex-col gap-4 items-center justify-between sm:flex-row">
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <span>Balance: 1276.9997 SUI</span>
             <div className="flex gap-2">
               <button
@@ -246,10 +246,11 @@ export default function SwapCard() {
                           <input
                             {...field}
                             onChange={(e) => {
+                              console.log(e.target.value)
                               const value = Number(e.target.value)
 
                               //Since we're using type="text" prevents the user entering a non number or decimal value
-                              if (isNaN(value)) return
+                              if (isNaN(value) && e.target.value !== ".") return
                               if (outputToken) {
                                 const calculatedOutput =
                                   Number(e.target.value) * dummyPrice
@@ -259,6 +260,13 @@ export default function SwapCard() {
                                   formatNumber(calculatedOutput).toString(),
                                 )
                               }
+                              console.log(value, e.target.value)
+                              e.target.value =
+                                e.target.value == "."
+                                  ? "0."
+                                  : e.target.value.endsWith(".")
+                                    ? e.target.value
+                                    : `${Number(e.target.value)}`
 
                               field.onChange(e)
                             }}
@@ -299,7 +307,7 @@ export default function SwapCard() {
                             onChange={(e) => {
                               const value = Number(e.target.value)
                               //Since we're using type="text" prevents the user entering a non number or decimal value
-                              if (isNaN(value)) return
+                              if (isNaN(value) && e.target.value !== ".") return
                               if (inputToken) {
                                 const calculatedInput =
                                   Number(e.target.value) / dummyPrice
@@ -310,6 +318,13 @@ export default function SwapCard() {
                                 )
                               }
 
+                              //Prevents scenarios like 01.727, 0371
+                              e.target.value =
+                                e.target.value == "."
+                                  ? "0."
+                                  : e.target.value.endsWith(".")
+                                    ? e.target.value
+                                    : `${Number(e.target.value)}`
                               field.onChange(e)
                             }}
                             inputMode="decimal"
