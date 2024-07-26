@@ -44,7 +44,7 @@ export default function SwapCard() {
                   autoCorrect="off"
                   type="text"
                   pattern="^[0-9]*[.,]?[0-9]*$"
-                  className="w-0 flex-1 border-none bg-transparent text-right text-5xl outline-none"
+                  className="w-0 flex-1 border-none bg-transparent text-right text-3xl sm:text-5xl outline-none"
                   placeholder="0"
                   minLength={1}
                   maxLength={79}
@@ -67,7 +67,7 @@ export default function SwapCard() {
                   autoCorrect="off"
                   type="text"
                   pattern="^[0-9]*[.,]?[0-9]*$"
-                  className="w-0 flex-1 border-none bg-transparent text-right text-5xl outline-none"
+                  className="w-0 flex-1 border-none bg-transparent text-right text-3xl sm:text-5xl outline-none"
                   placeholder="0"
                   minLength={1}
                   maxLength={79}
