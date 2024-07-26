@@ -103,6 +103,13 @@ export default function SwapCard() {
       form.setValue("inputTokenAmount", form.getValues("outputTokenAmount"))
       form.setValue("outputTokenAmount", "")
     }
+    //if the use already has entered a value in output before adding an input value, do the calculations for the possible input value
+    else if (outputToken?.symbol && outputValue) {
+      form.setValue(
+        "inputTokenAmount",
+        `${(Number(outputValue) * dummyPrice).toFixed(2)}`,
+      )
+    }
   }, [inputToken?.symbol, tokens])
 
   //Tokens caching
@@ -113,10 +120,18 @@ export default function SwapCard() {
 
     //Don't allow setting same token as input and output
     //Ref: https://app.uniswap.org/swap
+
     if (inputToken?.symbol === outputToken?.symbol) {
       setInputToken(undefined)
       form.setValue("outputTokenAmount", form.getValues("inputTokenAmount"))
       form.setValue("inputTokenAmount", "")
+    }
+    //if the use already has entered a value in input before adding an output token, do the calculations for the possible output value
+    else if (inputToken?.symbol && inputValue) {
+      form.setValue(
+        "outputTokenAmount",
+        `${(Number(inputValue) / dummyPrice).toFixed(2)}`,
+      )
     }
   }, [outputToken?.symbol, tokens])
 
@@ -398,7 +413,7 @@ export default function SwapCard() {
           </AlertDialog>
         </form>
       </Form>
-      <div className="flex w-full sm:w-auto max-w-[480px] justify-end gap-2 sm:flex-col sm:justify-normal">
+      <div className="flex w-full max-w-[480px] justify-end gap-2 sm:w-auto sm:flex-col sm:justify-normal">
         <GeneralSettings />
         <button
           onClick={() => resetAll()}
