@@ -1,5 +1,17 @@
 import arrowDownIcon from "@/assets/arrowDown.svg"
 import reloadIcon from "@/assets/reload.svg"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -24,8 +36,13 @@ import GeneralSettings from "./GeneralSettings"
 import { SelectTokenDialog } from "./SelectTokenDialog"
 import { Token } from "./token.types"
 import { useTokens } from "./useTokens"
+import { Spinner } from "./Spinner"
+import { useMutation } from "@tanstack/react-query"
+import { toast } from "../ui/use-toast"
 
-const tokenSchema = z.string().min(1)
+const tokenSchema = z.string().refine((item: string) => {
+  return !(Number(item) > 0)
+})
 
 const formSchema = z.object({
   inputTokenAmount: tokenSchema,
@@ -41,8 +58,39 @@ export default function SwapCard() {
   const setMergedTokensWithCache = useSetAtom(mergedTokensWithCacheAtom)
   //Token B = 0.1 x token
   const [dummyPrice, setDummyPrice] = useState(0.1)
+  const [formDisabled, setFormDisabled] = useState(true)
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: { inputTokenAmount: "0", outputTokenAmount: "0" },
+  })
 
-  //Token caching
+  const { isPending: isSwapping, mutate: submitForm } = useMutation({
+    mutationFn: async (values: {
+      in: Token & { amount: number }
+      out: Token & { amount: number }
+    }) => {
+      return new Promise<typeof values>((resolve) => {
+        setTimeout(() => {
+          resolve(values)
+        }, 3000)
+      })
+    },
+    onSuccess: (data) => {
+      form.reset()
+      toast({
+        variant: "success",
+        title: `You successfully swapped ${data.in.amount} ${data.in.symbol} for ${data.out.amount} ${data.out.symbol}`,
+      })
+    },
+    onError: () => {
+      console.log("Error creating")
+      toast({
+        title: "Something wrong creating swap",
+      })
+    },
+  })
+
+  //Tokens caching
   useEffect(() => {
     if (!tokens) return
     //Update tokens cache
@@ -72,11 +120,25 @@ export default function SwapCard() {
     }
   }, [outputToken?.symbol, tokens])
 
-  //Update Dummy token price when the tokens change
+  //Update Dummy token price randomly when the tokens change
   useEffect(() => {
     const newDummyPrice = Math.random() * (1 - 0.01) + 0.01
     setDummyPrice(Number(newDummyPrice.toFixed(2)))
   }, [inputToken?.symbol, outputToken?.symbol])
+
+  const inputValue = form.getValues("inputTokenAmount")
+  const outputValue = form.getValues("outputTokenAmount")
+
+  //Disable the swap button if input values or input tokens are missing
+  useEffect(() => {
+    const buttonDisabled = !(
+      inputToken &&
+      outputToken &&
+      Number(inputValue) > 0 &&
+      Number(outputValue) > 0
+    )
+    setFormDisabled(buttonDisabled)
+  }, [inputToken, outputToken, inputValue, outputValue])
 
   //Function that actually does the caching
   function updateRecentlyPicked(type: "input" | "output") {
@@ -90,7 +152,6 @@ export default function SwapCard() {
     setMergedTokensWithCache(mergedTokens)
   }
 
-
   function interchangeTokens() {
     const tempToken = inputToken
     const tempAmount = form.getValues("inputTokenAmount")
@@ -103,21 +164,20 @@ export default function SwapCard() {
     }
   }
 
-  const form = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: { inputTokenAmount: "", outputTokenAmount: "" },
-  })
-
-
   function setInputAmountFromBalance(percentage: number) {
     const inputValue = (percentage / 100) * user.balance
     form.setValue("inputTokenAmount", `${inputValue}`)
   }
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!inputToken || !outputToken) return
+    const swap = {
+      in: { ...inputToken, amount: Number(values.inputTokenAmount) },
+      out: { ...outputToken, amount: Number(values.outputTokenAmount) },
+    }
     //Perform swap
-    console.log("I submitted")
-    console.log(values)
+    //Would take in the items to be swapped
+    submitForm(swap)
   }
 
   return (
@@ -181,6 +241,7 @@ export default function SwapCard() {
                             {...field}
                             onChange={(e) => {
                               const value = Number(e.target.value)
+
                               //Since we're using type="text" prevents the user entering a non number or decimal value
                               if (isNaN(value)) return
                               if (outputToken) {
@@ -192,8 +253,7 @@ export default function SwapCard() {
                                   formatNumber(calculatedOutput).toString(),
                                 )
                               }
-                              //Prevents scenarios like 01 or 0281732.2746
-                              e.target.value = value.toString()
+
                               field.onChange(e)
                             }}
                             inputMode="decimal"
@@ -212,9 +272,6 @@ export default function SwapCard() {
                         $1.0645945
                       </span>
                     </div>
-
-                    {/* <FormDescription>This is your public display name.</FormDescription> */}
-                    {/* <FormMessage /> */}
                   </FormItem>
                 )}
               />
@@ -246,8 +303,7 @@ export default function SwapCard() {
                                   formatNumber(calculatedInput).toString(),
                                 )
                               }
-                              //Prevent scenarios like 01 or 028271
-                              e.target.value = value.toString()
+
                               field.onChange(e)
                             }}
                             inputMode="decimal"
@@ -266,9 +322,6 @@ export default function SwapCard() {
                         $1.0645945
                       </span>
                     </div>
-
-                    {/* <FormDescription>This is your public display name.</FormDescription> */}
-                    {/* <FormMessage /> */}
                   </FormItem>
                 )}
               />
@@ -281,13 +334,43 @@ export default function SwapCard() {
               <img src={arrowDownIcon} className="h-6 w-6" />
             </button>
           </div>
-          <Button
-            type="submit"
-            variant={"outline"}
-            className="cursor-pointer rounded-lg bg-[#CCE2FF] py-6 text-[#006EFF] hover:bg-blue-200 hover:text-[#006EFF]"
-          >
-            SWAP
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                type="button"
+                disabled={formDisabled || isSwapping}
+                variant={"outline"}
+                className="cursor-pointer rounded-lg bg-[#CCE2FF] py-6 text-[#006EFF] hover:bg-blue-200 hover:text-[#006EFF]"
+              >
+                {isSwapping ? <Spinner /> : "SWAP"}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirm Swap</AlertDialogTitle>
+                <AlertDialogDescription>
+                  You're swapping {Number(inputValue)} {inputToken?.symbol} for{" "}
+                  {outputValue} {outputToken?.symbol}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="text-red-500">
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction asChild>
+                  <Button
+                    type="submit"
+                    onClick={() => onSubmit(form.getValues())}
+                    disabled={formDisabled || isSwapping}
+                    variant={"outline"}
+                    className="cursor-pointer rounded-lg bg-[#CCE2FF] text-[#006EFF] hover:bg-blue-200 hover:text-[#006EFF]"
+                  >
+                    Confirm
+                  </Button>
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </form>
       </Form>
       <div className="flex flex-col gap-2">
