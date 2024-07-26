@@ -2,7 +2,7 @@ import arrowDownIcon from "@/assets/arrowDown.svg";
 import reloadIcon from "@/assets/reload.svg";
 import suiIcon from "@/assets/sui.svg";
 import usdcIcon from "@/assets/usdc.svg";
-import GeneralSettings from "../Statefull/GeneralSettings";
+import GeneralSettings from "../Dynamic/GeneralSettings";
 import { SelectTokenDialog } from "./SelectTokenDialog";
 import { Button } from "@/components/ui/button";
 
