@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 
 export default function SwapCard() {
   return (
-    <div className="flex justify-center gap-4">
-      <div className="flex w-[480px] flex-col gap-4 rounded-xl bg-[#F5F5FF] px-4 py-4">
-        <div className="flex items-center justify-between">
+    <div className="flex justify-center gap-4 w-full max-w-[500px] flex-col-reverse sm:flex-row">
+      <div className="flex w-full flex-col gap-4 rounded-xl bg-[#F5F5FF] px-4 py-4">
+        <div className="flex items-center justify-between flex-col gap-4 sm:flex-row">
           <span>Balance: 1276.9997 SUI</span>
           <div className="flex gap-2">
             <button className="rounded-lg border-2 border-[#EBEBF5] px-1 py-1 text-sm font-medium hover:bg-gray-200">
@@ -90,7 +90,7 @@ export default function SwapCard() {
         </Button>
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex justify-end sm:flex-col sm:justify-normal gap-2">
         <GeneralSettings />
         <div className="cursor-pointer rounded-lg bg-[#DCDCE6] p-2">
           <img className="h-6 w-6" src={reloadIcon}></img>

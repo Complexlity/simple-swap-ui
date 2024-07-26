@@ -61,7 +61,7 @@ export default function SwapCard() {
   const [formDisabled, setFormDisabled] = useState(true)
   const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues: { inputTokenAmount: "0", outputTokenAmount: "0" },
+    defaultValues: { inputTokenAmount: "", outputTokenAmount: "" },
   })
 
   const { isPending: isSwapping, mutate: submitForm } = useMutation({
@@ -128,6 +128,7 @@ export default function SwapCard() {
 
   const inputValue = form.getValues("inputTokenAmount")
   const outputValue = form.getValues("outputTokenAmount")
+  console.log(inputValue, outputValue)
 
   //Disable the swap button if input values or input tokens are missing
   useEffect(() => {
@@ -246,12 +247,11 @@ export default function SwapCard() {
                           <input
                             {...field}
                             onChange={(e) => {
-                              console.log(e.target.value)
                               const value = Number(e.target.value)
 
                               //Since we're using type="text" prevents the user entering a non number or decimal value
                               if (isNaN(value) && e.target.value !== ".") return
-                              if (outputToken) {
+                              if (outputToken && inputToken) {
                                 const calculatedOutput =
                                   Number(e.target.value) * dummyPrice
                                 //Sets the output token depending on the price
@@ -262,6 +262,7 @@ export default function SwapCard() {
                               }
                               console.log(value, e.target.value)
                               e.target.value =
+                                e.target.value == "" ? "":
                                 e.target.value == "."
                                   ? "0."
                                   : e.target.value.endsWith(".")
@@ -275,7 +276,7 @@ export default function SwapCard() {
                             autoCorrect="off"
                             type="text"
                             pattern="^[0-9]*[.,]?[0-9]*$"
-                            className="w-0 flex-1 border-none bg-transparent text-right text-5xl text-gray-600 outline-none placeholder:text-gray-600"
+                            className="w-0 flex-1 border-none bg-transparent text-right text-5xl text-gray-600 outline-none placeholder:text-gray-400"
                             placeholder="0"
                             minLength={1}
                             maxLength={79}
@@ -308,7 +309,7 @@ export default function SwapCard() {
                               const value = Number(e.target.value)
                               //Since we're using type="text" prevents the user entering a non number or decimal value
                               if (isNaN(value) && e.target.value !== ".") return
-                              if (inputToken) {
+                              if (inputToken && outputToken) {
                                 const calculatedInput =
                                   Number(e.target.value) / dummyPrice
                                 //Sets the input token depending on the price
@@ -320,6 +321,7 @@ export default function SwapCard() {
 
                               //Prevents scenarios like 01.727, 0371
                               e.target.value =
+                              e.target.value == "" ? "":
                                 e.target.value == "."
                                   ? "0."
                                   : e.target.value.endsWith(".")
@@ -332,7 +334,7 @@ export default function SwapCard() {
                             autoCorrect="off"
                             type="text"
                             pattern="^[0-9]*[.,]?[0-9]*$"
-                            className="w-0 flex-1 appearance-none border-none bg-transparent text-right text-5xl text-gray-600 outline-none placeholder:text-gray-600"
+                            className="w-0 flex-1 appearance-none border-none bg-transparent text-right text-5xl text-gray-600 outline-none placeholder:text-gray-400"
                             placeholder="0"
                             minLength={1}
                             maxLength={79}

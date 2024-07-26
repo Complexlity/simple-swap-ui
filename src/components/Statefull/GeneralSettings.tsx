@@ -63,7 +63,7 @@ export default function GeneralSettings() {
           <img className="h-6 w-6" src={gearLogo}></img>
         </div>
       </DialogTrigger>
-      <DialogContent className="w-[480px] bg-[#F5F5FF]">
+      <DialogContent className="w-[90%] rounded-xl max-w-[480px] bg-[#F5F5FF]">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}

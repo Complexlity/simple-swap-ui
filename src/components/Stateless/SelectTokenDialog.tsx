@@ -46,7 +46,7 @@ export function SelectTokenDialog(props: SelectTokenProps) {
           <div className="flex w-full items-center space-x-2">
             <Input
               type="text"
-              className="text-search py-2 rounded-full bg-[#EBEBF5] pl-10 pr-4"
+              className="w-full text-search py-2 rounded-full bg-[#EBEBF5] pl-10 pr-4"
               placeholder="Search name or address"
             />
             <Button
@@ -115,7 +115,7 @@ function Items(props: SelectTokenProps) {
   return (
     <div>
       <hr />
-      <div className="h-[452px] overflow-auto scrollbar-thin scrollbar-thumb-slate-200">
+      <div className="h-[calc(100vh*0.5)] overflow-auto scrollbar-thin scrollbar-thumb-slate-200">
         <div className="grid px-4 text-[#787882]">
           <div className="flex justify-between px-2 py-4">
             <span>Token</span>
