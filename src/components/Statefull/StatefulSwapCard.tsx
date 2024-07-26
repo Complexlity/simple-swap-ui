@@ -169,6 +169,12 @@ export default function SwapCard() {
     form.setValue("inputTokenAmount", `${inputValue}`)
   }
 
+  function resetAll() {
+    form.reset()
+    setInputToken(undefined)
+    setOutputToken(undefined)
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!inputToken || !outputToken) return
     const swap = {
@@ -181,13 +187,13 @@ export default function SwapCard() {
   }
 
   return (
-    <div className="flex justify-center gap-4">
+    <div className=" w-full flex flex-col-reverse justify-center gap-4 sm:flex-row">
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex w-[480px] flex-col gap-4 rounded-xl bg-[#F5F5FF] px-4 py-4"
+          className="flex w-full max-w-[480px]  flex-col gap-4 rounded-xl bg-[#F5F5FF] px-4 py-4"
         >
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-4 items-center justify-between sm:flex-row">
             <span>Balance: 1276.9997 SUI</span>
             <div className="flex gap-2">
               <button
@@ -373,11 +379,14 @@ export default function SwapCard() {
           </AlertDialog>
         </form>
       </Form>
-      <div className="flex flex-col gap-2">
+      <div className="flex gap-2 sm:flex-col">
         <GeneralSettings />
-        <div className="cursor-pointer rounded-lg bg-[#DCDCE6] p-2">
+        <button
+          onClick={() => resetAll()}
+          className="cursor-pointer rounded-lg bg-[#DCDCE6] p-2"
+        >
           <img className="h-6 w-6" src={reloadIcon}></img>
-        </div>
+        </button>
       </div>
     </div>
   )

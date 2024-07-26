@@ -48,10 +48,13 @@ export function SelectTokenDialog(props: SelectTokenProps) {
 
   return (
     <Dialog open={open}>
-      <DialogTrigger onClick={setOpen.bind(null, true)}>
+      <DialogTrigger
+        onClick={setOpen.bind(null, true)}
+        className="text-sm sm:text-base"
+      >
         {item ? (
-          <span className="flex cursor-pointer items-center justify-between gap-2 overflow-hidden rounded-full border border-[#DCDCE6] bg-[#F5F5FF] px-2 pl-1  hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50">
-            {<img src={item.logoURI} className="w-8 rounded-full my-1"></img>}
+          <span className="flex cursor-pointer items-center justify-between gap-2 overflow-hidden rounded-full border border-[#DCDCE6] bg-[#F5F5FF] px-2 pl-1 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50">
+            {<img src={item.logoURI} className="my-1 w-8 rounded-full"></img>}
             <span className="uppercase">{item.symbol}</span>
             <img src={caretDownIcon}></img>
           </span>
@@ -131,7 +134,6 @@ function Options({
     return <OptionsBase>{skeletons}</OptionsBase>
   }
 
-
   // const shuffledArray = shuffle(tokens)
   const components = []
   // const usedItem = tokens!
@@ -147,9 +149,9 @@ function Options({
           setToken(item)
           setOpen(false)
         }}
-        className="flex cursor-pointer items-center justify-between gap-1 rounded-full bg-[#EBEBF5] py-2 px-2 text-[14px] hover:bg-gray-300"
+        className="flex cursor-pointer items-center justify-between gap-1 rounded-full bg-[#EBEBF5] px-2 py-2 text-[14px] hover:bg-gray-300"
       >
-        <img src={item.logoURI} className=" h-6 w-6 rounded-full"></img>
+        <img src={item.logoURI} className="h-6 w-6 rounded-full"></img>
         <span className="uppercase">{item.symbol}</span>
       </span>,
     )
@@ -162,7 +164,7 @@ function ItemsBase({ children }: { children: ReactNode }) {
   return (
     <div>
       <hr />
-      <div className="h-[452px] overflow-auto scrollbar-thin scrollbar-thumb-slate-200">
+      <div className="h-[calc(100vh*0.5)] overflow-auto scrollbar-thin scrollbar-thumb-slate-200">
         <div className="grid px-4 text-[#787882]">
           <div className="flex justify-between px-2 py-4">
             <span>Token</span>
