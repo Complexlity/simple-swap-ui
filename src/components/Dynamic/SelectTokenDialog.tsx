@@ -53,13 +53,13 @@ export function SelectTokenDialog(props: SelectTokenProps) {
         className="text-sm sm:text-base"
       >
         {item ? (
-          <span className="flex cursor-pointer items-center justify-between gap-2 overflow-hidden rounded-full border border-[#DCDCE6] bg-[#F5F5FF] px-2 pl-1 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50">
+          <span className="hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50 border-muted-300 flex cursor-pointer items-center justify-between gap-2 overflow-hidden rounded-full border bg-primary-100 px-2 pl-1">
             {<img src={item.logoURI} className="my-1 w-8 rounded-full"></img>}
             <span className="uppercase">{item.symbol}</span>
             <img src={caretDownIcon}></img>
           </span>
         ) : (
-          <span className="flex cursor-pointer justify-between gap-2 overflow-hidden rounded-full border border-[#DCDCE6] bg-blue-400 px-2 py-2 pl-1 text-white hover:bg-green-500 hover:text-white dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50">
+          <span className="bg-blue-400 text-white hover:bg-green-500 hover:text-white dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50 border-muted-300 flex cursor-pointer justify-between gap-2 overflow-hidden rounded-full border px-2 py-2 pl-1">
             <span className="pl-2">Select Token</span>
             <img src={caretDownIcon}></img>
           </span>
@@ -67,7 +67,7 @@ export function SelectTokenDialog(props: SelectTokenProps) {
       </DialogTrigger>
       <DialogContent
         onInteractOutside={() => setOpen(false)}
-        className="bg-green-4000 max-w-[480px] rounded-2xl bg-[#F5F5FF] px-0 sm:rounded-2xl"
+        className="bg-green-4000 max-w-[480px] rounded-2xl bg-primary-100 px-0 sm:rounded-2xl"
       >
         <div className="grid gap-4 px-4">
           <DialogHeader>
@@ -75,7 +75,7 @@ export function SelectTokenDialog(props: SelectTokenProps) {
               <span className="w-full items-center">Select Token</span>
               <DialogClose asChild onClick={setOpen.bind(null, false)}>
                 <span className="cursor-pointer">
-                  <X className="right-0 top-1/2 h-8 w-8 text-gray-500 hover:text-blue-400" />
+                  <X className="text-gray-500 hover:text-blue-400 right-0 top-1/2 h-8 w-8" />
                   <span className="sr-only">Close</span>
                 </span>
               </DialogClose>
@@ -86,12 +86,12 @@ export function SelectTokenDialog(props: SelectTokenProps) {
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               type="text"
-              className="text-search w-full rounded-full bg-[#EBEBF5] py-2 pl-10 pr-4"
+              className="text-search bg-muted-100 w-full rounded-full py-2 pl-10 pr-4"
               placeholder="Search name or address"
             />
             <Button
               variant={"outline"}
-              className="flex cursor-pointer justify-between gap-2 rounded-full bg-[#EBEBF5] pl-1"
+              className="bg-muted-100 flex cursor-pointer justify-between gap-2 rounded-full pl-1"
             >
               <img src={suiIcon}></img>
               <img src={caretDownIcon}></img>
@@ -149,7 +149,7 @@ function Options({
           setToken(item)
           setOpen(false)
         }}
-        className="flex cursor-pointer items-center justify-between gap-1 rounded-full bg-[#EBEBF5] px-2 py-2 text-[14px] hover:bg-gray-300"
+        className="hover:bg-gray-300 bg-muted-100 flex cursor-pointer items-center justify-between gap-1 rounded-full px-2 py-2 text-[14px]"
       >
         <img src={item.logoURI} className="h-6 w-6 rounded-full"></img>
         <span className="uppercase">{item.symbol}</span>
@@ -164,8 +164,8 @@ function ItemsBase({ children }: { children: ReactNode }) {
   return (
     <div>
       <hr />
-      <div className="h-[calc(100vh*0.5)] overflow-auto scrollbar-thin scrollbar-thumb-slate-200">
-        <div className="grid px-4 text-[#787882]">
+      <div className="scrollbar-thumb-slate-200 h-[calc(100vh*0.5)] overflow-auto scrollbar-thin">
+        <div className="text-muted-500 grid px-4">
           <div className="flex justify-between px-2 py-4">
             <span>Token</span>
             <span>Balance</span>
@@ -221,19 +221,19 @@ function Items({
           setOpen(false)
         }}
         key={`item-${type}-${i}`}
-        className="flex cursor-pointer items-center justify-between rounded-lg bg-[#EBEBF5] px-4 py-2 text-[14px] hover:bg-[#DCDCE6]"
+        className="bg-muted-100 hover:bg-muted-300 flex cursor-pointer items-center justify-between rounded-lg px-4 py-2 text-[14px]"
       >
         <div className="flex gap-2">
           <img className="size-10 rounded-full" src={token.logoURI}></img>
           <div className="flex flex-col">
-            <span className="font-medium uppercase text-[#0C0C14]">
+            <span className="text-muted-900 font-medium uppercase">
               {token.name.split("(")[0]}
             </span>
             <span>{token.symbol}</span>
           </div>
         </div>
         <div className="flex flex-col text-end">
-          <span className="font-medium text-[#0C0C14]">789</span>
+          <span className="text-muted-900 font-medium">789</span>
           <span className="text-[14px]">$843.267</span>
         </div>
       </div>,

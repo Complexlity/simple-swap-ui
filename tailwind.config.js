@@ -9,6 +9,7 @@ export default {
   ],
   prefix: "",
   theme: {
+    
     container: {
       center: true,
       padding: "2rem",
@@ -17,6 +18,22 @@ export default {
       },
     },
     extend: {
+      colors: {
+        primary: {
+          50: "#CCE2FF",
+          100: "#F5F5FF", 
+          200: "#006EFF",
+          300: "#197CFF"
+        },
+        muted: {
+          100: "#EBEBF5",
+          200: "#C8C8DC",
+          300: "#DCDCE6",
+          400: "#bdbdd0",
+          500: "#787882",
+          900: "#0C0C14"
+        }
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },

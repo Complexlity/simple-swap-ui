@@ -207,7 +207,7 @@ export default function SwapCard() {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex w-full max-w-[480px] flex-col gap-4 rounded-xl bg-[#F5F5FF] px-4 py-4"
+          className="flex w-full max-w-[480px] flex-col gap-4 rounded-xl bg-primary-100 px-4 py-4"
         >
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <span>Balance: 1276.9997 SUI</span>
@@ -215,7 +215,7 @@ export default function SwapCard() {
               <button
                 type="button"
                 onClick={() => setInputAmountFromBalance(25)}
-                className="rounded-lg border-2 border-[#EBEBF5] px-1 py-1 text-sm font-medium hover:bg-gray-200"
+                className="hover:bg-gray-200 border-muted-100 rounded-lg border-2 px-1 py-1 text-sm font-medium"
               >
                 25%
               </button>
@@ -223,7 +223,7 @@ export default function SwapCard() {
               <button
                 type="button"
                 onClick={() => setInputAmountFromBalance(50)}
-                className="rounded-lg border-2 border-[#EBEBF5] px-1 py-1 text-sm font-medium hover:bg-gray-200"
+                className="hover:bg-gray-200 border-muted-100 rounded-lg border-2 px-1 py-1 text-sm font-medium"
               >
                 50%
               </button>
@@ -231,7 +231,7 @@ export default function SwapCard() {
               <button
                 type="button"
                 onClick={() => setInputAmountFromBalance(75)}
-                className="rounded-lg border-2 border-[#EBEBF5] px-1 py-1 text-sm font-medium hover:bg-gray-200"
+                className="hover:bg-gray-200 border-muted-100 rounded-lg border-2 px-1 py-1 text-sm font-medium"
               >
                 75%
               </button>
@@ -239,7 +239,7 @@ export default function SwapCard() {
               <button
                 type="button"
                 onClick={() => setInputAmountFromBalance(100)}
-                className="rounded-lg border-2 border-[#EBEBF5] px-1 py-1 text-sm font-medium hover:bg-gray-200"
+                className="hover:bg-gray-200 border-muted-100 rounded-lg border-2 px-1 py-1 text-sm font-medium"
               >
                 MAX
               </button>
@@ -252,8 +252,11 @@ export default function SwapCard() {
                 name="inputTokenAmount"
                 render={({ field }) => (
                   <FormItem>
-                    <div tabIndex={0} className="rounded-lg bg-[#EBEBF5]  px-3 py-2 focus:border focus:border-[#006EFF]">
-                      <FormLabel className="flex justify-end text-[14px] text-[#787882]">
+                    <div
+                      tabIndex={0}
+                      className="bg-muted-100 focus:border-primary-200 rounded-lg px-3 py-2 focus:border"
+                    >
+                      <FormLabel className="text-muted-500 flex justify-end text-[14px]">
                         Sell
                       </FormLabel>
                       <div className="flex items-center justify-between gap-4">
@@ -292,14 +295,14 @@ export default function SwapCard() {
                             autoCorrect="off"
                             type="text"
                             pattern="^[0-9]*[.,]?[0-9]*$"
-                            className="w-0 flex-1 border-none bg-transparent text-right text-3xl sm:text-5xl text-gray-600 outline-none placeholder:text-gray-400"
+                            className="bg-transparent text-gray-600 placeholder:text-gray-400 w-0 flex-1 border-none text-right text-3xl outline-none sm:text-5xl"
                             placeholder="0"
                             minLength={1}
                             maxLength={79}
                           />
                         </FormControl>
                       </div>
-                      <span className="flex justify-end text-[14px] text-[#0C0C14]">
+                      <span className="text-muted-900 flex justify-end text-[14px]">
                         $1.0645945
                       </span>
                     </div>
@@ -312,8 +315,11 @@ export default function SwapCard() {
                 name="outputTokenAmount"
                 render={({ field }) => (
                   <FormItem>
-                    <div tabIndex={0} className="rounded-lg bg-[#EBEBF5] px-3 py-2 focus:border focus:border-[#006EFF]">
-                      <FormLabel className="flex justify-end text-[14px] text-[#787882]">
+                    <div
+                      tabIndex={0}
+                      className="bg-muted-100 focus:border-primary-200 rounded-lg px-3 py-2 focus:border"
+                    >
+                      <FormLabel className="text-muted-500 flex justify-end text-[14px]">
                         Buy
                       </FormLabel>
                       <div className="flex items-center justify-between gap-4">
@@ -351,14 +357,14 @@ export default function SwapCard() {
                             autoCorrect="off"
                             type="text"
                             pattern="^[0-9]*[.,]?[0-9]*$"
-                            className="w-0 flex-1 appearance-none border-none bg-transparent text-right text-3xl sm:text-5xl text-gray-600 outline-none placeholder:text-gray-400"
+                            className="bg-transparent text-gray-600 placeholder:text-gray-400 w-0 flex-1 appearance-none border-none text-right text-3xl outline-none sm:text-5xl"
                             placeholder="0"
                             minLength={1}
                             maxLength={79}
                           />
                         </FormControl>
                       </div>
-                      <span className="flex justify-end text-[14px] text-[#0C0C14]">
+                      <span className="text-muted-900 flex justify-end text-[14px]">
                         $1.0645945
                       </span>
                     </div>
@@ -369,7 +375,7 @@ export default function SwapCard() {
             <button
               type="button"
               onClick={() => interchangeTokens()}
-              className="absolute right-1/2 top-1/2 -translate-y-1/2 translate-x-1/2 cursor-pointer rounded-full border-[3px] border-[#F5F5FF] bg-[#DCDCE6] px-2 py-2 hover:bg-[#bdbdd0]"
+              className="bg-muted-300 hover:bg-muted-400 absolute right-1/2 top-1/2 -translate-y-1/2 translate-x-1/2 cursor-pointer rounded-full border-[3px] border-primary-100 px-2 py-2"
             >
               <img src={arrowDownIcon} className="h-6 w-6" />
             </button>
@@ -380,7 +386,7 @@ export default function SwapCard() {
                 type="button"
                 disabled={formDisabled || isSwapping}
                 variant={"outline"}
-                className="cursor-pointer rounded-lg bg-[#CCE2FF] py-6 text-[#006EFF] hover:bg-blue-200 hover:text-[#006EFF]"
+                className="hover:bg-blue-200 text-primary-200 hover:text-primary-200 bg-primary-50 cursor-pointer rounded-lg py-6"
               >
                 {isSwapping ? <Spinner /> : "SWAP"}
               </Button>
@@ -403,7 +409,7 @@ export default function SwapCard() {
                     onClick={() => onSubmit(form.getValues())}
                     disabled={formDisabled || isSwapping}
                     variant={"outline"}
-                    className="cursor-pointer rounded-lg bg-[#CCE2FF] text-[#006EFF] hover:bg-blue-200 hover:text-[#006EFF]"
+                    className="hover:bg-blue-200 text-primary-200 hover:text-primary-200 bg-primary-50 cursor-pointer rounded-lg"
                   >
                     Confirm
                   </Button>
@@ -417,7 +423,7 @@ export default function SwapCard() {
         <GeneralSettings />
         <button
           onClick={() => resetAll()}
-          className="cursor-pointer rounded-lg bg-[#DCDCE6] p-2"
+          className="bg-muted-300 cursor-pointer rounded-lg p-2"
         >
           <img className="h-6 w-6" src={reloadIcon}></img>
         </button>

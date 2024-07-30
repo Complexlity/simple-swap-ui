@@ -4,7 +4,7 @@ import StatelessSwapCard from "@/components/Stateless/StatelessSwapCard"
 
 function App() {
   return (
-    <div className="container flex h-screen flex-col items-center justify-center bg-[#C8C8DC]">
+    <div className="bg-muted-200 container flex h-screen flex-col items-center justify-center">
       <Tabs defaultValue="dynamic" className="w-full max-w-[480px]">
         <TabsList className="my-8 w-full">
           <TabsTrigger value="dynamic" className="w-full">

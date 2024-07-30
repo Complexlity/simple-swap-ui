@@ -59,11 +59,11 @@ export default function GeneralSettings() {
   return (
     <Dialog>
       <DialogTrigger>
-        <div className="cursor-pointer rounded-lg bg-[#DCDCE6] p-2">
+        <div className="bg-muted-300 cursor-pointer rounded-lg p-2">
           <img className="h-6 w-6" src={gearLogo}></img>
         </div>
       </DialogTrigger>
-      <DialogContent className="w-[90%] rounded-xl max-w-[480px] bg-[#F5F5FF]">
+      <DialogContent className="w-[90%] max-w-[480px] rounded-xl bg-primary-100">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -80,7 +80,7 @@ export default function GeneralSettings() {
                   <span className="cursor-pointer">
                     <X
                       size={4}
-                      className="right-0 top-1/2 h-8 w-8 text-gray-500 hover:text-blue-400"
+                      className="text-gray-500 hover:text-blue-400 right-0 top-1/2 h-8 w-8"
                     />
                     <span className="sr-only">Close</span>
                   </span>
@@ -92,7 +92,7 @@ export default function GeneralSettings() {
               control={form.control}
               name="slippageMode"
               render={({ field }) => (
-                <FormItem className="flex items-center justify-between rounded-lg bg-[#EBEBF5] border border-[#DCDCE6] px-4 py-4">
+                <FormItem className="bg-muted-100 border-muted-300 flex items-center justify-between rounded-lg border px-4 py-4">
                   <FormLabel>
                     <span>Slippage Mode</span>
                   </FormLabel>
@@ -109,9 +109,9 @@ export default function GeneralSettings() {
                         <FormLabel
                           className={buttonVariants({
                             className: cn(
-                              "cursor-pointer rounded-lg bg-[#787882] font-medium hover:bg-blue-400",
+                              "hover:bg-blue-400 bg-muted-500 cursor-pointer rounded-lg font-medium",
                               {
-                                "bg-[#197CFF]":
+                                "bg-primary-300":
                                   form.getValues().slippageMode === "auto",
                               },
                             ),
@@ -127,9 +127,9 @@ export default function GeneralSettings() {
                         <FormLabel
                           className={buttonVariants({
                             className: cn(
-                              "cursor-pointer rounded-lg bg-[#787882] font-medium hover:bg-blue-400",
+                              "hover:bg-blue-400 bg-muted-500 cursor-pointer rounded-lg font-medium",
                               {
-                                "bg-[#197CFF]":
+                                "bg-primary-300":
                                   form.getValues().slippageMode === "fixed",
                               },
                             ),
@@ -149,7 +149,7 @@ export default function GeneralSettings() {
               control={form.control}
               name="directRoute"
               render={({ field }) => (
-                <FormItem className="flex items-center justify-between rounded-lg bg-[#EBEBF5] px-4 py-6">
+                <FormItem className="bg-muted-100 flex items-center justify-between rounded-lg px-4 py-6">
                   <FormLabel>
                     <span>Direct Route Only</span>
                   </FormLabel>
@@ -157,7 +157,7 @@ export default function GeneralSettings() {
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      className="text-[#006EFF] data-[state=checked]:bg-[#006EFF]"
+                      className="text-primary-200 data-[state=checked]:bg-primary-200"
                     />
                   </FormControl>
                 </FormItem>
@@ -168,7 +168,7 @@ export default function GeneralSettings() {
               <Button
                 type="submit"
                 variant={"outline"}
-                className="w-full cursor-pointer rounded-lg bg-[#CCE2FF] py-6 text-[#006EFF] hover:bg-blue-200 hover:text-[#006EFF]"
+                className="hover:bg-blue-200 text-primary-200 hover:text-primary-200 bg-primary-50 w-full cursor-pointer rounded-lg py-6"
               >
                 Save Settings
               </Button>
