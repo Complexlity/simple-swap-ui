@@ -20,6 +20,7 @@ export interface Token {
     logoURI:     string;
     tags?:       string[];
     extensions?: Extensions;
+    priceUsd:    number;
 }
 
 export interface Extensions {

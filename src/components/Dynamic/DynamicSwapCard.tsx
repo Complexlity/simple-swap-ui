@@ -40,6 +40,10 @@ import { Spinner } from "./Spinner"
 import { useMutation } from "@tanstack/react-query"
 import { toast } from "../ui/use-toast"
 
+function getPriceAtoB(priceA: number, priceB: number) {
+  return priceA / priceB
+}
+
 const tokenSchema = z.string().refine((item: string) => {
   return !(Number(item) > 0)
 })
@@ -56,8 +60,7 @@ export default function SwapCard() {
   const [outputToken, setOutputToken] = useAtom(outputTokenAtom)
   const [tokensWithCache, setTokensWithCache] = useAtom(tokensCacheAtom)
   const setMergedTokensWithCache = useSetAtom(mergedTokensWithCacheAtom)
-  //Token B = 0.1 x token
-  const [dummyPrice, setDummyPrice] = useState(0.1)
+  // const [price, setPrice] = useState<number | null>(null)
   const [formDisabled, setFormDisabled] = useState(true)
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -90,6 +93,9 @@ export default function SwapCard() {
     },
   })
 
+  const inputValue = form.getValues("inputTokenAmount")
+  const outputValue = form.getValues("outputTokenAmount")
+
   //Tokens caching
   useEffect(() => {
     if (!tokens) return
@@ -103,12 +109,15 @@ export default function SwapCard() {
       form.setValue("inputTokenAmount", form.getValues("outputTokenAmount"))
       form.setValue("outputTokenAmount", "")
     }
+
     //if the use already has entered a value in output before adding an input value, do the calculations for the possible input value
-    else if (outputToken?.symbol && outputValue) {
-      form.setValue(
-        "inputTokenAmount",
-        `${(Number(outputValue) * dummyPrice).toFixed(2)}`,
-      )
+    if (outputToken?.symbol && outputValue) {
+      if (inputToken?.priceUsd && outputToken?.priceUsd) {
+        form.setValue(
+          "inputTokenAmount",
+          `${(Number(outputValue) / getPriceAtoB(outputToken.priceUsd, inputToken.priceUsd)).toFixed(2)}`,
+        )
+      }
     }
   }, [inputToken?.symbol, tokens])
 
@@ -126,24 +135,20 @@ export default function SwapCard() {
       form.setValue("outputTokenAmount", form.getValues("inputTokenAmount"))
       form.setValue("inputTokenAmount", "")
     }
-    //if the use already has entered a value in input before adding an output token, do the calculations for the possible output value
+
+    // //if the use already has entered a value in input before adding an output token, do the calculations for the possible output value
     else if (inputToken?.symbol && inputValue) {
-      form.setValue(
-        "outputTokenAmount",
-        `${(Number(inputValue) / dummyPrice).toFixed(2)}`,
-      )
+      if (inputToken?.priceUsd && outputToken?.priceUsd) {
+        form.setValue(
+          "outputTokenAmount",
+          `${(Number(inputValue) * getPriceAtoB(outputToken.priceUsd, outputToken.priceUsd)).toFixed(2)}`,
+        )
+      }
     }
   }, [outputToken?.symbol, tokens])
 
   //Update Dummy token price randomly when the tokens change
-  useEffect(() => {
-    const newDummyPrice = Math.random() * (1 - 0.01) + 0.01
-    setDummyPrice(Number(newDummyPrice.toFixed(2)))
-  }, [inputToken?.symbol, outputToken?.symbol])
-
-  const inputValue = form.getValues("inputTokenAmount")
-  const outputValue = form.getValues("outputTokenAmount")
-  console.log(inputValue, outputValue)
+  useEffect(() => {}, [inputToken?.symbol, outputToken?.symbol])
 
   //Disable the swap button if input values or input tokens are missing
   useEffect(() => {
@@ -170,14 +175,10 @@ export default function SwapCard() {
 
   function interchangeTokens() {
     const tempToken = inputToken
-    const tempAmount = form.getValues("inputTokenAmount")
     setInputToken(outputToken)
-    form.setValue("inputTokenAmount", form.getValues("outputTokenAmount"))
     setOutputToken(tempToken)
-    form.setValue("outputTokenAmount", tempAmount)
-    if (dummyPrice) {
-      setDummyPrice(1 / dummyPrice)
-    }
+    form.setValue("inputTokenAmount", "0")
+    form.setValue("outputTokenAmount", "0")
   }
 
   function setInputAmountFromBalance(percentage: number) {
@@ -186,7 +187,7 @@ export default function SwapCard() {
     if (inputToken?.symbol && outputToken?.symbol) {
       form.setValue(
         "outputTokenAmount",
-        `${(Number(inputValue) * dummyPrice).toFixed(2)}`,
+        `${(Number(inputValue) * getPriceAtoB(outputToken.priceUsd, inputToken.priceUsd)).toFixed(2)}`,
       )
     }
   }
@@ -277,7 +278,11 @@ export default function SwapCard() {
                               if (isNaN(value) && e.target.value !== ".") return
                               if (outputToken && inputToken) {
                                 const calculatedOutput =
-                                  Number(e.target.value) * dummyPrice
+                                  Number(e.target.value) *
+                                  getPriceAtoB(
+                                    outputToken.priceUsd,
+                                    inputToken.priceUsd,
+                                  )
                                 //Sets the output token depending on the price
                                 form.setValue(
                                   "outputTokenAmount",
@@ -339,7 +344,11 @@ export default function SwapCard() {
                               if (isNaN(value) && e.target.value !== ".") return
                               if (inputToken && outputToken) {
                                 const calculatedInput =
-                                  Number(e.target.value) / dummyPrice
+                                  Number(e.target.value) /
+                                  getPriceAtoB(
+                                    outputToken.priceUsd,
+                                    inputToken.priceUsd,
+                                  )
                                 //Sets the input token depending on the price
                                 form.setValue(
                                   "inputTokenAmount",
